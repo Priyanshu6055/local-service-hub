@@ -28,7 +28,18 @@ app.use(express.json());
 
 // Enable CORS with restricted origin
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    const allowedOrigins = process.env.ALLOWED_ORIGIN 
+      ? process.env.ALLOWED_ORIGIN.split(',') 
+      : ['http://localhost:3000', 'http://localhost:5173'];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
