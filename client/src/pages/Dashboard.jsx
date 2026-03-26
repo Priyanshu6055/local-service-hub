@@ -210,10 +210,15 @@ const Dashboard = () => {
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border">
                   <img 
-                    src={profileImage && profileImage.startsWith('/') ? `${VITE_BASE_URL}${profileImage}` : (profileImage || 'https://via.placeholder.com/150')} 
+                    src={profileImage && profileImage.startsWith('/') ? `${VITE_BASE_URL}${profileImage}` : (profileImage && profileImage !== 'default.jpg' ? profileImage : `https://ui-avatars.com/api/?name=${profile?.name || 'User'}&background=random`)} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/150'}
+                    onError={(e) => {
+                      if (!e.target.dataset.tried) {
+                        e.target.dataset.tried = "true";
+                        e.target.src = `https://ui-avatars.com/api/?name=${profile?.name || 'User'}&background=random`;
+                      }
+                    }}
                   />
                 </div>
                 <div>
@@ -241,9 +246,15 @@ const Dashboard = () => {
                 {portfolioImages.map((img, idx) => (
                   <div key={idx} className="relative aspect-square rounded-lg bg-gray-100 overflow-hidden border group">
                     <img 
-                      src={img && img.startsWith('/') ? `${VITE_BASE_URL}${img}` : (img || 'https://via.placeholder.com/150')} 
+                      src={img && img.startsWith('/') ? `${VITE_BASE_URL}${img}` : (img || 'https://placehold.co/400x400?text=Portfolio')} 
                       alt={`Portfolio ${idx}`} 
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        if (!e.target.dataset.tried) {
+                          e.target.dataset.tried = "true";
+                          e.target.src = 'https://placehold.co/400x400?text=Error+Loading';
+                        }
+                      }}
                     />
                     <button 
                       onClick={() => setPortfolioImages(portfolioImages.filter((_, i) => i !== idx))}

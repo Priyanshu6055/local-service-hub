@@ -69,9 +69,15 @@ const WorkerProfile = () => {
           <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-end -mt-12 sm:-mt-16 mb-4">
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white p-1 shadow-lg border-2 border-white">
               <img 
-                src={worker.profileImage !== 'default.jpg' ? (worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage) : 'https://via.placeholder.com/150'} 
+                src={worker.profileImage !== 'default.jpg' ? (worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage) : `https://ui-avatars.com/api/?name=${worker.user.name}&background=random`} 
                 alt={worker.user.name} 
                 className="w-full h-full rounded-full object-cover bg-gray-100"
+                onError={(e) => {
+                  if (!e.target.dataset.tried) {
+                    e.target.dataset.tried = "true";
+                    e.target.src = `https://ui-avatars.com/api/?name=${worker.user.name}&background=random`;
+                  }
+                }}
               />
             </div>
             <div className="flex-1 pb-2">

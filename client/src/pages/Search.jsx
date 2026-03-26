@@ -117,7 +117,17 @@ const Search = () => {
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {worker.profileImage && worker.profileImage !== 'default.jpg' ? (
-                        <img src={worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage} alt={worker.user.name} className="w-full h-full object-cover" />
+                        <img 
+                          src={worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage} 
+                          alt={worker.user.name} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => {
+                            if (!e.target.dataset.tried) {
+                              e.target.dataset.tried = "true";
+                              e.target.src = `https://ui-avatars.com/api/?name=${worker.user.name}&background=random`;
+                            }
+                          }}
+                        />
                       ) : (
                         <User className="text-gray-400 w-8 h-8" />
                       )}
