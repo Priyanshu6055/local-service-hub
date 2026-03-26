@@ -83,12 +83,16 @@ const Dashboard = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       
-      if (type === 'profile') {
-        setProfileImage(data.image);
-        setMessage('Profile image uploaded. Save to apply changes.');
+      if (data.image) {
+        if (type === 'profile') {
+          setProfileImage(data.image);
+          setMessage('Profile image uploaded. Save to apply changes.');
+        } else {
+          setPortfolioImages([...portfolioImages, data.image]);
+          setMessage('Portfolio image added. Save to apply changes.');
+        }
       } else {
-        setPortfolioImages([...portfolioImages, data.image]);
-        setMessage('Portfolio image added. Save to apply changes.');
+        setError('Upload failed: Server did not return an image path.');
       }
     } catch (err) {
       setError('Failed to upload image');
