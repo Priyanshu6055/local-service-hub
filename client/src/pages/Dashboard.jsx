@@ -210,7 +210,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border">
                   <img 
-                    src={profileImage.startsWith('/') ? `${VITE_BASE_URL}${profileImage}` : profileImage} 
+                    src={profileImage && profileImage.startsWith('/') ? `${VITE_BASE_URL}${profileImage}` : (profileImage || 'https://via.placeholder.com/150')} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
                     onError={(e) => e.target.src = 'https://via.placeholder.com/150'}
@@ -241,7 +241,7 @@ const Dashboard = () => {
                 {portfolioImages.map((img, idx) => (
                   <div key={idx} className="relative aspect-square rounded-lg bg-gray-100 overflow-hidden border group">
                     <img 
-                      src={img.startsWith('/') ? `${VITE_BASE_URL}${img}` : img} 
+                      src={img && img.startsWith('/') ? `${VITE_BASE_URL}${img}` : (img || 'https://via.placeholder.com/150')} 
                       alt={`Portfolio ${idx}`} 
                       className="w-full h-full object-cover"
                     />

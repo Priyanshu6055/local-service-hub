@@ -24,7 +24,8 @@ app.use(helmet({
 }));
 
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Enable CORS with restricted origin
 const corsOptions = {
