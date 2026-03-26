@@ -61,9 +61,18 @@ app.use('/api/workers', require('./routes/workerRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
+// Root route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
+
 // Error handler middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
