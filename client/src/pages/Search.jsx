@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { User, Star, MapPin, Zap } from 'lucide-react';
-import api from '../utils/api';
+import api, { VITE_BASE_URL } from '../utils/api';
 import Card, { CardContent } from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -117,7 +117,7 @@ const Search = () => {
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {worker.profileImage && worker.profileImage !== 'default.jpg' ? (
-                        <img src={`http://localhost:5000${worker.profileImage}`} alt={worker.user.name} className="w-full h-full object-cover" />
+                        <img src={worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage} alt={worker.user.name} className="w-full h-full object-cover" />
                       ) : (
                         <User className="text-gray-400 w-8 h-8" />
                       )}

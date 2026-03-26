@@ -71,7 +71,17 @@ const getWorkerById = async (req, res, next) => {
 // @access  Private (Worker only)
 const updateWorkerProfile = async (req, res, next) => {
   try {
-    const { description, isAvailable, category, experience, city, area } = req.body;
+    const { 
+      description, 
+      isAvailable, 
+      category, 
+      experience, 
+      city, 
+      area, 
+      coordinates, 
+      profileImage, 
+      portfolioImages 
+    } = req.body;
 
     let workerProfile = await WorkerProfile.findOne({ user: req.user.id });
 
@@ -87,6 +97,9 @@ const updateWorkerProfile = async (req, res, next) => {
     if (experience) workerProfile.experience = experience;
     if (city) workerProfile.location.city = city;
     if (area) workerProfile.location.area = area;
+    if (coordinates) workerProfile.location.coordinates = coordinates;
+    if (profileImage) workerProfile.profileImage = profileImage;
+    if (portfolioImages) workerProfile.portfolioImages = portfolioImages;
 
     await workerProfile.save();
 

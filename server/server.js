@@ -5,6 +5,11 @@ const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const path = require('path');
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
+const compression = require('compression');
+
 // Load env vars
 dotenv.config();
 
@@ -13,11 +18,39 @@ connectDB();
 
 const app = express();
 
+// Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
 // Body parser
 app.use(express.json());
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with restricted origin
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// HTTP request logging
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Compression
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use('/api', limiter);
 
 // Make uploads folder static
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

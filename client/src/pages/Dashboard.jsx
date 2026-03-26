@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import api, { VITE_BASE_URL } from '../utils/api';
 import Card, { CardContent, CardHeader } from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -15,6 +15,12 @@ const Dashboard = () => {
   // Form states
   const [isAvailable, setIsAvailable] = useState(true);
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [experience, setExperience] = useState('');
+  const [city, setCity] = useState('');
+  const [area, setArea] = useState('');
+  const [profileImage, setProfileImage] = useState('default.jpg');
+  const [portfolioImages, setPortfolioImages] = useState([]);
   const [uploadLoading, setUploadLoading] = useState(false);
 
   useEffect(() => {
@@ -28,6 +34,12 @@ const Dashboard = () => {
         if (data.workerProfile) {
           setIsAvailable(data.workerProfile.isAvailable);
           setDescription(data.workerProfile.description || '');
+          setCategory(data.workerProfile.category || '');
+          setExperience(data.workerProfile.experience || '');
+          setCity(data.workerProfile.location?.city || '');
+          setArea(data.workerProfile.location?.area || '');
+          setProfileImage(data.workerProfile.profileImage || 'default.jpg');
+          setPortfolioImages(data.workerProfile.portfolioImages || []);
         }
       } catch (err) {
         navigate('/login');
@@ -46,7 +58,13 @@ const Dashboard = () => {
     try {
       await api.put('/workers/dashboard', {
         isAvailable,
-        description
+        description,
+        category,
+        experience,
+        city,
+        area,
+        profileImage,
+        portfolioImages
       });
       setMessage('Profile updated successfully');
     } catch (err) {
@@ -54,7 +72,7 @@ const Dashboard = () => {
     }
   };
 
-  const uploadFileHandler = async (e) => {
+  const uploadFileHandler = async (e, type = 'profile') => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('image', file);
@@ -65,10 +83,13 @@ const Dashboard = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       
-      // We would ideally save this to the worker profile's profileImage or portfolio
-      // For MVP, if we had an endpoint update here:
-      console.log(data);
-      setMessage('Image uploaded temporarily (Needs DB save API link)');
+      if (type === 'profile') {
+        setProfileImage(data.image);
+        setMessage('Profile image uploaded. Save to apply changes.');
+      } else {
+        setPortfolioImages([...portfolioImages, data.image]);
+        setMessage('Portfolio image added. Save to apply changes.');
+      }
     } catch (err) {
       setError('Failed to upload image');
     } finally {
@@ -129,6 +150,41 @@ const Dashboard = () => {
           <CardHeader title="Edit Profile Details" />
           <CardContent className="p-6 pt-0">
             <form onSubmit={handleUpdate} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input 
+                  label="Service Category" 
+                  placeholder="e.g. Plumber, Electrician"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                />
+                <Input 
+                  label="Years of Experience" 
+                  type="number"
+                  placeholder="e.g. 5"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input 
+                  label="City" 
+                  placeholder="e.g. Bhopal"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                />
+                <Input 
+                  label="Area" 
+                  placeholder="e.g. MP Nagar"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  required
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">About Me</label>
                 <textarea 
@@ -144,25 +200,70 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Upload Portfolio */}
+        {/* Media Management */}
         <Card>
-          <CardHeader title="Upload Media" subtitle="Add a profile picture or previous work images." />
-          <CardContent className="p-6 pt-0">
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
-              <input 
-                type="file" 
-                onChange={uploadFileHandler} 
-                className="hidden" 
-                id="file-upload" 
-                accept="image/*"
-              />
-              <label 
-                htmlFor="file-upload" 
-                className="cursor-pointer btn-outline inline-block"
-              >
-                {uploadLoading ? 'Uploading...' : 'Choose Image'}
-              </label>
-              <p className="mt-2 text-xs text-gray-500">PNG, JPG up to 5MB</p>
+          <CardHeader title="Media Management" subtitle="Manage your profile picture and portfolio images." />
+          <CardContent className="p-6 pt-0 space-y-6">
+            {/* Profile Image */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">Profile Image</h4>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border">
+                  <img 
+                    src={profileImage.startsWith('/') ? `${VITE_BASE_URL}${profileImage}` : profileImage} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => e.target.src = 'https://via.placeholder.com/150'}
+                  />
+                </div>
+                <div>
+                  <input 
+                    type="file" 
+                    onChange={(e) => uploadFileHandler(e, 'profile')} 
+                    className="hidden" 
+                    id="profile-upload" 
+                    accept="image/*"
+                  />
+                  <label 
+                    htmlFor="profile-upload" 
+                    className="cursor-pointer btn-outline px-4 py-2 text-sm inline-block"
+                  >
+                    {uploadLoading ? 'Uploading...' : 'Change Photo'}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Portfolio Images */}
+            <div className="space-y-4 pt-6 border-t border-gray-100">
+              <h4 className="font-semibold text-gray-900">Portfolio Images</h4>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                {portfolioImages.map((img, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-lg bg-gray-100 overflow-hidden border group">
+                    <img 
+                      src={img.startsWith('/') ? `${VITE_BASE_URL}${img}` : img} 
+                      alt={`Portfolio ${idx}`} 
+                      className="w-full h-full object-cover"
+                    />
+                    <button 
+                      onClick={() => setPortfolioImages(portfolioImages.filter((_, i) => i !== idx))}
+                      className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                  <input 
+                    type="file" 
+                    onChange={(e) => uploadFileHandler(e, 'portfolio')} 
+                    className="hidden" 
+                    accept="image/*"
+                  />
+                  <span className="text-2xl text-gray-400">+</span>
+                  <span className="text-xs text-gray-400">Add</span>
+                </label>
+              </div>
             </div>
           </CardContent>
         </Card>

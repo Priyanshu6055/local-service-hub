@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Star, MapPin, Phone, MessageSquare, ShieldCheck, Clock } from 'lucide-react';
-import api from '../utils/api';
+import api, { VITE_BASE_URL } from '../utils/api';
 import Card, { CardContent } from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -69,7 +69,7 @@ const WorkerProfile = () => {
           <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-end -mt-12 sm:-mt-16 mb-4">
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white p-1 shadow-lg border-2 border-white">
               <img 
-                src={worker.profileImage !== 'default.jpg' ? `http://localhost:5000${worker.profileImage}` : 'https://via.placeholder.com/150'} 
+                src={worker.profileImage !== 'default.jpg' ? (worker.profileImage.startsWith('/') ? `${VITE_BASE_URL}${worker.profileImage}` : worker.profileImage) : 'https://via.placeholder.com/150'} 
                 alt={worker.user.name} 
                 className="w-full h-full rounded-full object-cover bg-gray-100"
               />
